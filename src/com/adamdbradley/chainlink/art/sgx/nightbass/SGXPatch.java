@@ -12,12 +12,12 @@ import com.adamdbradley.chainlink.InputConnector;
 import com.adamdbradley.chainlink.OutputConnector;
 import com.adamdbradley.chainlink.art.sgx.nightbass.SGXComponent.SGXOutputConnector;
 
-public class SGXPatch implements com.adamdbradley.chainlink.UpdatablePatch<Processor> {
+public class SGXPatch implements com.adamdbradley.chainlink.UpdatablePatch<SGXProcessor> {
 
     Short bank;
     Short patchNumber;
     String name;
-    Processor processor;
+    SGXProcessor processor;
     List<Component> components;
 
     public SGXPatch() {
@@ -45,13 +45,13 @@ public class SGXPatch implements com.adamdbradley.chainlink.UpdatablePatch<Proce
     }
 
     @Override
-    public Processor getProcessor() {
+    public SGXProcessor getProcessor() {
         return processor;
     }
 
     @Override
-    public Class<Processor> getProcessorType() {
-        return Processor.class;
+    public Class<SGXProcessor> getProcessorType() {
+        return SGXProcessor.class;
     }
 
 }

@@ -6,7 +6,7 @@ import javax.sound.midi.SysexMessage;
 import com.adamdbradley.chainlink.MidiControlledProcessor;
 import com.adamdbradley.chainlink.Patch;
 
-public class Processor extends MidiControlledProcessor {
+public class SGXProcessor extends MidiControlledProcessor {
 
     @Override
     public SysexMessage dumpAllPatches() {
