@@ -13,6 +13,7 @@ import javax.sound.midi.Transmitter;
 
 import com.adamdbradley.chainlink.MidiControlledProcessor;
 import com.adamdbradley.chainlink.exceptions.CommunicationFailureException;
+import com.adamdbradley.chainlink.midi.MidiMessageHelper;
 
 public class SGXProcessor extends MidiControlledProcessor {
 
@@ -99,14 +100,6 @@ public class SGXProcessor extends MidiControlledProcessor {
         };
     }
 
-    protected final byte[] deviceInquiry = {
-            -0x10, // SOX
-            0x7e, // non-real-time global inquiry
-            0x7f, // "all channels" 
-            0x06, // general info
-            0x01, // identity request
-            -0x09 // EOX
-    };
     protected final byte[] dumpAllPatches = {
             -0x10, // SysEx start status
             0x1a, // ART manufacturer id
@@ -139,7 +132,7 @@ public class SGXProcessor extends MidiControlledProcessor {
             } catch (InvalidMidiDataException e) {
                 throw new RuntimeException(e);
             }
-            System.err.println("Sending " + renderMessage(dumpAllRequest) + " to " + getTransmitPort());
+            System.err.println("Sending " + MidiMessageHelper.render(dumpAllRequest) + " to " + getTransmitPort());
             getTransmitPort().send(dumpAllRequest, -1);
             try {
                 messageQueue.wait(5000);
@@ -186,13 +179,13 @@ public class SGXProcessor extends MidiControlledProcessor {
     public void send(final MidiMessage message, final long timeStamp) {
         if (message instanceof SysexMessage) {
             final SysexMessage sysex = (SysexMessage) message;
-            System.err.println("Adding MIDI SysEx message(" + sysex.getMessage().length + ") to queue: " + renderMessage(sysex));
+            System.err.println("Adding MIDI SysEx message(" + sysex.getMessage().length + ") to queue: " + MidiMessageHelper.render(sysex));
             messageQueue.add(sysex);
             synchronized(messageQueue) {
                 messageQueue.notify();
             }
         } else {
-            System.err.println("Ignoring MIDI message: " + renderMessage(message));
+            System.err.println("Ignoring MIDI message: " + MidiMessageHelper.render(message));
         }
     }
 

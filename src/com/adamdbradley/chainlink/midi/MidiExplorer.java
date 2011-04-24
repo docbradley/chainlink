@@ -1,4 +1,4 @@
-package com.adamdbradley.chainlink;
+package com.adamdbradley.chainlink.midi;
 
 import java.util.ArrayList;
 import java.util.Collections;

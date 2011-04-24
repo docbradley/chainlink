@@ -90,13 +90,4 @@ implements ControllableProcessor, Receiver {
 
 
 
-
-    protected String renderMessage(MidiMessage message) {
-        StringBuilder sb = new StringBuilder("[ ");
-        for (byte b:message.getMessage()) {
-            sb.append(String.format("%02x ", b));
-        }
-        return sb.append("]").toString();
-    }
-
 }
