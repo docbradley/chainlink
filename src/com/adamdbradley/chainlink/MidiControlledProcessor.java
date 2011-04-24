@@ -6,6 +6,8 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Transmitter;
 
+import com.adamdbradley.chainlink.exceptions.CommunicationFailureException;
+
 public 
 abstract 
 class MidiControlledProcessor 
@@ -61,8 +63,8 @@ implements ControllableProcessor, Receiver {
     @Override
     public abstract void send(MidiMessage message, long timeStamp);
 
-    public abstract SysexMessage dumpPatch(short patchNumber);
-    public abstract SysexMessage dumpAllPatches();
+    public abstract SysexMessage dumpPatch(short patchNumber) throws CommunicationFailureException;
+    public abstract SysexMessage dumpAllPatches() throws CommunicationFailureException;
 
 
 
