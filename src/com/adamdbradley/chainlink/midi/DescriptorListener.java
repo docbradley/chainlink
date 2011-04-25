@@ -46,6 +46,8 @@ public class DescriptorListener implements Receiver {
         if (message instanceof SysexMessage) {
             System.err.println("Enqueuing message on " + description + ": " + MidiMessageHelper.render(message));
             messages.add((SysexMessage) message);
+        } else if (message.getStatus() == 0xf8) { // MIDI clock event, disregard
+            // hard ignore
         } else {
             System.err.println("Ignoring message on " + description + ": " + MidiMessageHelper.render(message));
             // ignore

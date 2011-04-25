@@ -1,7 +1,6 @@
 package com.adamdbradley.chainlink.midi;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,8 +43,8 @@ public class DeviceDiscovery {
             }
         }
         
-        List<DescriptorListener> listeners = new ArrayList<DescriptorListener>(inputs.size());
-        for (MidiDevice input:inputs) {
+        final List<DescriptorListener> listeners = new ArrayList<DescriptorListener>(inputs.size());
+        for (final MidiDevice input:inputs) {
             try {
                 listeners.add(new DescriptorListener(input));
             } catch (MidiUnavailableException e) {
@@ -55,36 +54,80 @@ public class DeviceDiscovery {
         
         final List<DeviceDescriptor> descriptors = new LinkedList<DeviceDescriptor>();
         
-        for (MidiDevice output:outputs) {
-            final Receiver send;
-            try {
-                output.open();
-                send = output.getReceiver();
-            } catch (MidiUnavailableException e) {
-                System.err.println("Couldn't open output " + output + ", skipping");
+        boolean done = false;
+        
+        for (final MidiDevice output:outputs) {
+            if (false) {
+                if (output.getDeviceInfo().getName().equals("Port 8 on MXPXT")) {
+                    try {
+                        output.open();
+                        MidiMessage pc = MidiMessageHelper.programChange(16, 3);
+                        System.err.println("Sending " + MidiMessageHelper.render(pc));
+                        output.getReceiver().send(pc, -1);
+                        done = true;
+                    } catch (MidiUnavailableException e) {
+                        System.err.println("FAIL " + e);
+                        throw new RuntimeException(e);
+                    } finally {
+                        output.close();
+                    }
+                    
+                    
+                } else {
+                    continue;
+                }
+            }
+            
+            
+            
+            if (!output.getDeviceInfo().getName().contains("MXPXT") || output.getDeviceInfo().getName().contains("Sync")) {
                 continue;
             }
-            System.err.println("Spamming discovery messages on " + output.getDeviceInfo().getName());
-            try {
-                for (int channel:Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,-1)) {
-                    MidiMessage inquiryRequest = MidiMessageHelper.deviceInquiry(channel);
-                    send.send(inquiryRequest, -1);
+            
+            
+            
+            
+            if (true) {
+                final Receiver send;
+                try {
+                    output.open();
+                    send = output.getReceiver();
+                } catch (MidiUnavailableException e) {
+                    if (output.isOpen()) {
+                        output.close();
+                    }
+                    System.err.println("Couldn't open output " + output + ", skipping");
+                    continue;
                 }
-            } finally {
+                    
+                System.err.println("Spamming discovery messages on " + output.getDeviceInfo().getName());
+                
+                for (int deviceId=0 ; deviceId<128 ; deviceId++) {
+                    MidiMessage inquiryRequest = MidiMessageHelper.deviceInquiry(deviceId);
+                    send.send(inquiryRequest, -1);
+                    Thread.sleep(10);
+                }
+                
                 send.close();
                 output.close();
-            }
-            
-            System.err.println("Waiting for responses to DI messages on " + output.getDeviceInfo().getName());
-            Thread.sleep(3000);
-            
-            for (DescriptorListener listener:listeners) {
-                descriptors.addAll(listener.getResponses(output));
+                
+                System.err.println("Waiting for responses to DI messages on " + output.getDeviceInfo().getName());
+                Thread.sleep(1000);
+                
+                for (DescriptorListener listener:listeners) {
+                    descriptors.addAll(listener.getResponses(output));
+                }
             }
         }
         
         for (DescriptorListener listener:listeners) {
             listener.close();
+            Thread.sleep(100); // Can throw NullPointerException !?!?
+        }
+        
+        
+        if (!done) {
+            throw new RuntimeException("Didn't find interface");
         }
         
         return Collections.unmodifiableList(descriptors);
